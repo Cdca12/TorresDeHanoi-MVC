@@ -7,7 +7,13 @@ package torresdehanoi.mvc;
 public class Main {
 
     public static void main(String[] args) {
-        // TODO code application logic here
+        TorresDeHanoiVista vista = new TorresDeHanoiVista();
+        TorresDeHanoiModelo modelo = new TorresDeHanoiModelo();
+        TorresDeHanoiControlador controlador = new TorresDeHanoiControlador(vista, modelo);
+        
+        vista.setControlador(controlador);
+        vista.lanzarVista();
+//        controlador.iniciarJuego(3);
     }
     
 }
