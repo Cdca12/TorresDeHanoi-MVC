@@ -23,11 +23,12 @@ public class TorresDeHanoiVista extends JFrame {
     private Disco[] discos;
     private Torre[] torres;
     private Timer timer;
-    private boolean estaBajando = false;
+    private boolean estaBajando;
 
     public TorresDeHanoiVista() {
         super("Torres de Hanói");
         hazInterfaz();
+        estaBajando = false;
     }
 
     public JButton getBtnAñadir() {
@@ -109,7 +110,7 @@ public class TorresDeHanoiVista extends JFrame {
         cmbNumeroDiscos = new JComboBox();
         for (int i = 3; i <= 8; cmbNumeroDiscos.addItem(i), i++);
         cmbNumeroDiscos.setBounds(710, 80, 90, 30);
-//        cmbNumeroDiscos.setBackground(Color.WHITE);
+        cmbNumeroDiscos.setBackground(Color.WHITE);
         add(cmbNumeroDiscos);
 
     }
