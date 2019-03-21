@@ -55,7 +55,8 @@ public class TorresDeHanoiControlador implements ActionListener {
                 return;
             }
             Movimiento movimiento = modelo.obtenerMovimientos().get(modelo.index);
-            System.out.println("El Disco " + movimiento.getDisco() + " se mueve de la Torre " + movimiento.getTorreInicial() + " a la Torre " + movimiento.getTorreFinal());
+//            System.out.println("El Disco " + movimiento.getDisco() + " se mueve de la Torre " + movimiento.getTorreInicial() + " a la Torre " + movimiento.getTorreFinal());
+            
 
             // Subir
             if(vista.subirDisco(movimiento)) {

@@ -127,13 +127,18 @@ public class TorresDeHanoiVista extends JFrame {
             discoAnterior = disco;
         }
         for (int i = 0; i < discos.length; glassPanelDiscos.add(discos[i]), i++);
-
         update(getGraphics());
     }
 
     public void iniciarTimer() {
         timer = new Timer(20, controlador);
         timer.start();
+    }
+    
+    public void pausarTimer() {
+        if (timer != null) {
+            timer.stop();
+        }
     }
 
     public void alerta() {
@@ -153,6 +158,7 @@ public class TorresDeHanoiVista extends JFrame {
     public void limpiarDiscos() {
         glassPanelDiscos.removeAll();
         for (int i = 0; i < torres.length; torres[i].discosActuales = 0, i++);
+        pausarTimer();
     }
 
     public boolean subirDisco(Movimiento movimiento) {
