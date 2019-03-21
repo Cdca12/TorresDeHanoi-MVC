@@ -1,21 +1,12 @@
 package torresdehanoi.mvc;
 
-import com.sun.glass.ui.Timer;
-import java.awt.Color;
-import java.awt.Graphics;
-import java.awt.Image;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.*;
+import java.awt.*;
+import java.awt.event.*;
 import java.util.Random;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javax.swing.BorderFactory;
-import javax.swing.JButton;
-import javax.swing.JComboBox;
-import javax.swing.JFrame;
+import javax.swing.*;
 import static javax.swing.JFrame.EXIT_ON_CLOSE;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
+import torresdehanoi.mvc.TorresDeHanoiModelo.Movimiento;
 
 /**
  *
@@ -30,10 +21,9 @@ public class TorresDeHanoiVista extends JFrame {
     private JLabel lbCmbNumeroDiscos;
     private JPanel glassPanelDiscos;
     private Disco[] discos;
+    private Torre[] torres;
     private Timer timer;
-
-    private final int LIMITE_Y = 19;
-    int decrementoY = 0;
+    private boolean estaBajando = false;
 
     public TorresDeHanoiVista() {
         super("Torres de Hanói");
@@ -55,10 +45,14 @@ public class TorresDeHanoiVista extends JFrame {
     public void setDiscos(Disco[] discos) {
         this.discos = discos;
     }
-    
-    
-    
-    
+
+    public Disco[] getDiscos() {
+        return discos;
+    }
+
+    public Timer getTimer() {
+        return timer;
+    }
 
     public void setControlador(TorresDeHanoiControlador controlador) {
         this.controlador = controlador;
@@ -79,24 +73,22 @@ public class TorresDeHanoiVista extends JFrame {
         glassPanelDiscos.setLayout(null);
         glassPanelDiscos.setVisible(true);
 
+        torres = new Torre[3];
+
         // Torre 1
-        Torre torre1 = new Torre();
-        torre1.setBounds(0, -20, 220, 300);
-        add(torre1);
+        torres[0] = new Torre();
+        torres[0].setBounds(0, -20, 220, 300);
+        add(torres[0]);
 
         // Torre 2
-        Torre torre2 = new Torre();
-        torre2.setBounds(220, -20, 220, 300);
-        add(torre2);
+        torres[1] = new Torre();
+        torres[1].setBounds(220, -20, 220, 300);
+        add(torres[1]);
 
         // Torre 3
-        Torre torre3 = new Torre();
-        torre3.setBounds(440, -20, 220, 300);
-        add(torre3);
-
-        // TEST: Inicializar Discos
-        discos = new Disco[3];
-        inicializarDiscos(3);
+        torres[2] = new Torre();
+        torres[2].setBounds(440, -20, 220, 300);
+        add(torres[2]);
 
         // Label Número de Discos
         lbCmbNumeroDiscos = new JLabel("Discos:");
@@ -106,21 +98,11 @@ public class TorresDeHanoiVista extends JFrame {
         // Botón para añadir discos
         btnAñadir = new JButton("Añadir");
         btnAñadir.setBounds(710, 140, 90, 30);
-         // No llega
-//        btnAñadir.addActionListener(new ActionListener() {
-//            @Override
-//            public void actionPerformed(ActionEvent ae) {
-//                
-//            }
-//        });
         add(btnAñadir);
-//        btnAñadir.addActionListener();
 
         // Botón para Iniciar
         btnIniciar = new JButton("Iniciar");
         btnIniciar.setBounds(710, 180, 90, 30);
-        btnIniciar.addActionListener(controlador);
-
         add(btnIniciar);
 
         // Combo con Número de Discos
@@ -135,21 +117,32 @@ public class TorresDeHanoiVista extends JFrame {
     public void inicializarDiscos(int numeroDiscos) {
         Disco disco = new Disco();
         Disco discoAnterior = disco;
-        disco.setBounds(25, 215, 170, 15);
+        disco.setBounds(25, 230, 175, 15);
         discos[0] = disco; // Primer disco
-        for (int i = 1; i < numeroDiscos; i++) {
+        torres[0].discosActuales = numeroDiscos;
+        for (int i = numeroDiscos - 1; i >= 0; i--) {
             disco = new Disco();
             disco.setBounds(discoAnterior.getX() + 10, discoAnterior.getY() - (discoAnterior.getHeight()), discoAnterior.getWidth() - 20, discoAnterior.getHeight());
-            // glassPanelDiscos.add(disco);
             discos[i] = disco;
             discoAnterior = disco;
         }
+        for (int i = 0; i < discos.length; glassPanelDiscos.add(discos[i]), i++);
 
-        for (int i = discos.length - 1; i >= 0; i--) {
-            glassPanelDiscos.add(discos[i]);
-        }
         update(getGraphics());
+    }
 
+    public void iniciarTimer() {
+        timer = new Timer(20, controlador);
+        timer.start();
+    }
+
+    public void alerta() {
+        JOptionPane.showMessageDialog(this, "Favor de insertar discos primero");
+    }
+
+    public void terminarJuego() {
+        JOptionPane.showMessageDialog(this, "¡Juego Completado!");
+        timer.stop();
     }
 
     public void lanzarVista() {
@@ -159,53 +152,59 @@ public class TorresDeHanoiVista extends JFrame {
 
     public void limpiarDiscos() {
         glassPanelDiscos.removeAll();
+        for (int i = 0; i < torres.length; torres[i].discosActuales = 0, i++);
     }
 
-    public void sacarDisco() {
-        while (decrementoY != 40) {
-            discos[2].setBounds(discos[2].getX(), discos[2].getY() - decrementoY, discos[2].getWidth(), discos[2].getHeight());
-            decrementoY += 5;
+    public boolean subirDisco(Movimiento movimiento) {
+        Disco discoAMover = discos[movimiento.getDisco() - 1];
+        if (discoAMover.getY() == 10 || estaBajando) {
+            return false;
         }
+        discoAMover.setBounds(discoAMover.getX(), discoAMover.getY() - 5, discoAMover.getWidth(), discoAMover.getHeight());
+        return true;
     }
 
-//    public void inicializarDiscos(int numeroDiscos) {
-//        Disco disco = new Disco();
-//        Disco discoAux;
-//        disco.setBounds(20, 10, 45, 20);
-//        add(disco);
-////        torre1.add(discoInicial);
-//        for (int i = 0; i <= numeroDiscos; i++) {
-//            discoAux = new Disco();
-////            discoAux.setBounds(disco.getX() - , disco.getY(), disco.getWidth(), disco.getHeight());
-//            add(disco);
-//        }
-////        torre1.updateUI();
-//    }
-//    private void pintarGrafico() {
-//        super.paint(g);
-//        int desplazamientoX = 0;
-//        // 3 torres
-//        for (int i = 0; i < 3; i++) {
-//            g.setColor(new Color(118, 60, 40));
-//            g.fillRect(10 + desplazamientoX, 250, 200, 15);
-//
-//            g.setColor(Color.BLACK);
-//            g.drawRect(10 + desplazamientoX, 250, 200, 15);
-//
-//            // Palo
-//            g.setColor(new Color(166, 94, 46));
-//            g.fillRect(110 + desplazamientoX, 50, 5, 200);
-//
-//            desplazamientoX += 220;
-//        }
-//        // Se pintan los discos TODO:
-//
-//        repaint();
-//    }
+    public boolean bajarDisco(Movimiento movimiento) {
+        Disco discoAMover = discos[movimiento.getDisco() - 1];
+        int altura = 215 - discoAMover.getHeight() * (torres[movimiento.getTorreFinal() - 1].discosActuales);
+        if (discoAMover.getY() >= altura) {
+            estaBajando = false;
+            torres[movimiento.getTorreInicial() - 1].discosActuales--;
+            torres[movimiento.getTorreFinal() - 1].discosActuales++;
+            return false;
+        }
+        estaBajando = true;
+        discoAMover.setBounds(discoAMover.getX(), discoAMover.getY() + 5, discoAMover.getWidth(), discoAMover.getHeight());
+        return true;
+
+    }
+
+    public boolean moverDisco(Movimiento movimiento) {
+        Disco discoAMover = discos[movimiento.getDisco() - 1];
+        int espacio = (10 * (discos.length - movimiento.getDisco())) + 30;
+        // Ha llegado al destino
+        if (movimiento.getTorreFinal() == 1 && discoAMover.getX() == torres[0].getX() + espacio
+                || movimiento.getTorreFinal() == 2 && discoAMover.getX() == torres[1].getX() + espacio
+                || movimiento.getTorreFinal() == 3 && discoAMover.getX() == torres[2].getX() + espacio) { // Ha llegado al destino de Torre 1
+            return false;
+        }
+        // Mover
+        if (movimiento.getTorreInicial() < movimiento.getTorreFinal()) { // Se tiene que mover de izquierda a derecha
+            discoAMover.setBounds(discoAMover.getX() + 5, discoAMover.getY(), discoAMover.getWidth(), discoAMover.getHeight());
+            return true;
+        }
+        // Se tiene que mover de derecha a izquierda
+        discoAMover.setBounds(discoAMover.getX() - 5, discoAMover.getY(), discoAMover.getWidth(), discoAMover.getHeight());
+        return true;
+    }
+
     private static class Torre extends JPanel {
+
+        public int discosActuales;
 
         public Torre() {
             setLayout(null);
+            this.discosActuales = 0;
         }
 
         @Override

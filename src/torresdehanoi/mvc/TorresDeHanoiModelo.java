@@ -9,6 +9,8 @@ import java.util.Vector;
 public class TorresDeHanoiModelo {
 
     private Vector<Movimiento> movimientos;
+    
+    public int index = 0;
 
     public TorresDeHanoiModelo() {
         movimientos = new Vector();
@@ -18,9 +20,13 @@ public class TorresDeHanoiModelo {
         return movimientos;
     }
     
+    public void iniciarSimulacion(int numeroDiscos, int torreInicial, int torreCentral, int torreFinal) {
+        this.movimientos.removeAllElements();
+        hanoi(numeroDiscos, torreInicial, torreCentral, torreFinal);
+    }
+    
     public void hanoi(int numeroDiscos, int torreInicial, int torreCentral, int torreFinal) {
         if (numeroDiscos == 1) {
-            // contador++;
             movimientos.add(new Movimiento(1, torreInicial, torreFinal));
             return;
         }
@@ -29,7 +35,7 @@ public class TorresDeHanoiModelo {
         hanoi(numeroDiscos - 1, torreCentral, torreInicial, torreFinal);
     }
 
-    private class Movimiento {
+    public static class Movimiento {
         private int disco, torreInicial, torreFinal;
     
         public Movimiento(int disco, int torreInicial, int torreFinal) {
